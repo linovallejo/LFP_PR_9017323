@@ -1,6 +1,12 @@
 import tkinter as tk
 from tkinter import filedialog as fd
 import re as re
+import sys
+
+root = tk.Tk()
+root.title('Abrir Archivo')
+root.resizable(False, False)
+root.geometry('300x300')
 
 filetypes = [("Archivos de Entrada", "*.txt")]
 def AbrirArchivo():
@@ -16,6 +22,7 @@ def AbrirArchivo():
     print('Total de Dígitos:', len(re.findall(patron, contenido)));
     patron = '[^a-zA-Z\d\n\s|]';
     print('Total de Símbolos:', len(re.findall(patron, contenido)));
+    sys.exit()
 
 
 errmsg = 'Error!'
