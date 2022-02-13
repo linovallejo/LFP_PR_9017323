@@ -1,18 +1,26 @@
 # Import the necessary packages
+from tokenize import Number
 from consolemenu import *
 from consolemenu.items import *
 import tkinter as tk
 from tkinter import filedialog as fd
 import matplotlib.pyplot as plt
-
+from decimal import *
 
 meses = {'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'}
 simbolos = {'dos_puntos': ':', 'igual':'=', 'parentesis_abierto':'(', 'parentesis_cerrado': ')', 'corchete_abierto':'[', 'comilla':'"', 'coma':',', 'punto_coma':';', 'corchete_cerrado':']'}
-mes = ''
-anio = 0
+mes = None
+anio = None
 errores = []
 productos = []
 ventas = []
+
+def is_float(n):
+    try:
+        float(n) 
+    except ValueError:
+        return False
+    return True
 
 def AbrirArchivoData():
     filetypes = [("Archivos de Data", "*.data")]
@@ -20,16 +28,26 @@ def AbrirArchivoData():
     if nombreArchivo == '':
         return
     tf = open(nombreArchivo, 'r')
-    contenido = tf.read()
+    contenido = tf.readlines()
     for linea in contenido:
-        linea = linea.split()
+        precio = 0
+        cantidad = 0
+        monto_ventas = 0
         if ((simbolos['dos_puntos'] in linea) and (simbolos['igual']) and (simbolos['parentesis_abierto'])):
             linea = linea.split()
-            if (linea[0].upper() in meses) and (linea[2].isnumeric()):
+            if (linea[0].upper() in meses):
                 mes = linea[0].upper()
+            else:
+                errores.append('Mes invalido')
+            if (linea[2].isdigit()):                
                 anio = linea[2]
             else:
-                errores.append('No mes y/o anio')
+                errores.append('Anio invalido')
+            if mes is None or anio is None:
+                errores.append('Mes o anio son invalidos')
+            if mes is None and anio is None:
+                errores.append('Ambos mes y anio son invalidos')
+        
         if ((simbolos['corchete_abierto'] in linea) and (simbolos['punto_coma'] in linea) and (simbolos['corchete_cerrado'] in linea)):
             linea = linea.replace(simbolos['comilla'],'')
             linea = linea.replace(simbolos['corchete_abierto'],'')
@@ -44,19 +62,21 @@ def AbrirArchivoData():
             if linea[1].strip() == '':
                 precio = 0
             else:
-                if linea[1].isnumeric():
+                if is_float(linea[1].strip()):
                     precio = float(linea[1].strip())
                 else:
                     errores.append('Precio invalido')
             if linea[2].strip() == '':
                 cantidad = 0
             else:
-                if linea[2].isnumeric():
+                if linea[2].strip().isnumeric():
                     cantidad = int(linea[2].strip())
                 else:
                     errores.append('Cantidad invalido')
+
+            monto_ventas = precio * float(cantidad)
             
-            ventas.append(precio * cantidad)
+            ventas.append(round(monto_ventas,2))
 
 
     tf.close()
