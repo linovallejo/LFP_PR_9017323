@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import filedialog as fd
 import matplotlib.pyplot as plt
 from decimal import *
+import utils
 
 meses = {'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'}
 simbolos = {'dos_puntos': ':', 'igual':'=', 'parentesis_abierto':'(', 'parentesis_cerrado': ')', 'corchete_abierto':'[', 'comilla':'"', 'coma':',', 'punto_coma':';', 'corchete_cerrado':']'}
@@ -15,14 +16,9 @@ errores = []
 productos = []
 ventas = []
 
-def is_float(n):
-    try:
-        float(n) 
-    except ValueError:
-        return False
-    return True
 
 def AbrirArchivoData():
+    global mes, anio, errores, productos, ventas
     filetypes = [("Archivos de Data", "*.data")]
     nombreArchivo = fd.askopenfilename(filetypes=filetypes, title="Seleccione un archivo .data")
     if nombreArchivo == '':
@@ -62,7 +58,7 @@ def AbrirArchivoData():
             if linea[1].strip() == '':
                 precio = 0
             else:
-                if is_float(linea[1].strip()):
+                if utils.is_float(linea[1].strip()):
                     precio = float(linea[1].strip())
                 else:
                     errores.append('Precio invalido')
@@ -96,12 +92,14 @@ def Analizar():
 
 def GraficaPie():
     # Pie chart, where the slices will be ordered and plotted counter-clockwise:
-    labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
-    sizes = [15, 30, 45, 10]
-    explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+    # labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
+    # sizes = [15, 30, 45, 10]
+    # explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+    labels = productos
+    sizes = ventas
 
     fig1, ax1 = plt.subplots()
-    ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+    ax1.pie(sizes, explode=None, labels=labels, autopct='%1.1f%%',
             shadow=True, startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
