@@ -1,21 +1,30 @@
 # Import the necessary packages
+from fileinput import filename
+from hashlib import new
+import this
 from tokenize import Number
+from typing_extensions import Self
 from consolemenu import *
 from consolemenu.items import *
 import tkinter as tk
 from tkinter import filedialog as fd
+from tkinter import messagebox as mb
+
 import matplotlib.pyplot as plt
 from decimal import *
 import utils
+import webbrowser
 
-meses = {'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'}
-simbolos = {'dos_puntos': ':', 'igual':'=', 'parentesis_abierto':'(', 'parentesis_cerrado': ')', 'corchete_abierto':'[', 'comilla':'"', 'coma':',', 'punto_coma':';', 'corchete_cerrado':']'}
-mes = None
-anio = None
-errores = []
-productos = []
-ventas = []
+def VariablesGlobales():
+    meses = {'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'}
+    simbolos = {'dos_puntos': ':', 'igual':'=', 'parentesis_abierto':'(', 'parentesis_cerrado': ')', 'corchete_abierto':'[', 'comilla':'"', 'coma':',', 'punto_coma':';', 'corchete_cerrado':']'}
+    mes = None
+    anio = None
+    errores = []
+    productos = []
+    ventas = []
 
+VariablesGlobales()
 
 def AbrirArchivoData():
     global mes, anio, errores, productos, ventas
@@ -90,6 +99,33 @@ def AbrirArchivoInstrucciones():
 def Analizar():
     print('Analizar')
 
+def Reporte():
+#     html = """<html>
+#     <header>
+#         <title>Reporte Mes de Enero 2022</title>
+#     </header>
+#     <body>
+#         <div>
+#             Hello Reports!
+#         </div>
+#     </body>
+# </html>"""
+    filename = "file:///home/linovallejo/Projects/LFP_PR_9017323/report.html"
+    # try:
+    #     webbrowser.open(filename, new=1, autoraise=True)
+    # except webbrowser.Error:
+    #     return False
+    # return True
+    # try:
+    #     name = None
+    #     browser = None
+    #     browser = webbrowser.get(name)
+    #     mb.showinfo(name)
+    # except webbrowser.Error:
+    #     mb.showerror('Cannot detect browser')
+    # return
+
+
 def GraficaPie():
     # Pie chart, where the slices will be ordered and plotted counter-clockwise:
     # labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -105,6 +141,9 @@ def GraficaPie():
 
     plt.show()
 
+    return
+
+
 menu = ConsoleMenu("Generador de Reportes de Ventas", exit_option_text="Salir")
 
 menu_item = MenuItem("Menu Item")
@@ -113,11 +152,13 @@ function_item_cargar_datos = FunctionItem("Cargar Data", AbrirArchivoData)
 function_item_cargar_instrucciones = FunctionItem("Cargar Instrucciones", AbrirArchivoInstrucciones)
 function_item_analizar = FunctionItem("Analizar", Analizar)
 function_item_grafica = FunctionItem("Grafica", GraficaPie)
+function_item_reporte = FunctionItem("Reporte", Reporte)
 
 menu.append_item(function_item_cargar_datos)
 menu.append_item(function_item_cargar_instrucciones)
 menu.append_item(function_item_analizar)
 menu.append_item(function_item_grafica)
+menu.append_item(function_item_reporte)
 
 menu.show()
 
