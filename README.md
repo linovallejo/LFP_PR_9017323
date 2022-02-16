@@ -15,5 +15,5 @@ Configuracion de ambiente de desarrollo:
 * Instalar paquetes requeridos
 
   * pip3 install tkinter
-  * pip3 install consolemenu
+  * pip3 install console-menu
   * pip3 install -U matplotlib

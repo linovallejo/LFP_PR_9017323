@@ -3,17 +3,15 @@ from fileinput import filename
 from hashlib import new
 import this
 from tokenize import Number
-from typing_extensions import Self
 from consolemenu import *
 from consolemenu.items import *
 import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
-
 import matplotlib.pyplot as plt
-from decimal import *
 import utils
 import webbrowser
+import os
 
 def VariablesGlobales():
     meses = {'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'}
@@ -23,8 +21,11 @@ def VariablesGlobales():
     errores = []
     productos = []
     ventas = []
+    carpetareportes = 'reportes'
+    imagefilename = 'grafica.png'
+    fullpathreportes = os.getcwd() + carpetareportes + '/' + imagefilename
 
-VariablesGlobales()
+VariablesGlobales
 
 def AbrirArchivoData():
     global mes, anio, errores, productos, ventas
@@ -111,19 +112,9 @@ def Reporte():
 #     </body>
 # </html>"""
     filename = "file:///home/linovallejo/Projects/LFP_PR_9017323/report.html"
-    # try:
-    #     webbrowser.open(filename, new=1, autoraise=True)
-    # except webbrowser.Error:
-    #     return False
-    # return True
-    # try:
-    #     name = None
-    #     browser = None
-    #     browser = webbrowser.get(name)
-    #     mb.showinfo(name)
-    # except webbrowser.Error:
-    #     mb.showerror('Cannot detect browser')
-    # return
+    # MacOS
+    # chrome_path = "open -a /Applications/Google\ Chrome.app %s"
+    # webbrowser.get(chrome_path).open('www.apple.com')
 
 
 def GraficaPie():
@@ -134,12 +125,14 @@ def GraficaPie():
     labels = productos
     sizes = ventas
 
-    fig1, ax1 = plt.subplots()
+    ax1 = plt.subplots()
     ax1.pie(sizes, explode=None, labels=labels, autopct='%1.1f%%',
             shadow=True, startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
+    plt.savefig(fullpathreportes, bbox_inches='tight')
     plt.show()
+    plt.close()
 
     return
 
