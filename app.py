@@ -13,19 +13,17 @@ import utils
 import webbrowser
 import os
 
-def VariablesGlobales():
-    meses = {'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'}
-    simbolos = {'dos_puntos': ':', 'igual':'=', 'parentesis_abierto':'(', 'parentesis_cerrado': ')', 'corchete_abierto':'[', 'comilla':'"', 'coma':',', 'punto_coma':';', 'corchete_cerrado':']'}
-    mes = None
-    anio = None
-    errores = []
-    productos = []
-    ventas = []
-    carpetareportes = 'reportes'
-    imagefilename = 'grafica.png'
-    fullpathreportes = os.getcwd() + carpetareportes + '/' + imagefilename
+meses = {'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'}
+simbolos = {'dos_puntos': ':', 'igual':'=', 'parentesis_abierto':'(', 'parentesis_cerrado': ')', 'corchete_abierto':'[', 'comilla':'"', 'coma':',', 'punto_coma':';', 'corchete_cerrado':']'}
+mes = None
+anio = None
+errores = []
+productos = []
+ventas = []
+carpetareportes = 'reportes'
+imagefilename = 'grafica.png'
+fullpathreportes = os.getcwd() + '/' + carpetareportes + '/' + imagefilename
 
-VariablesGlobales
 
 def AbrirArchivoData():
     global mes, anio, errores, productos, ventas
@@ -125,14 +123,14 @@ def GraficaPie():
     labels = productos
     sizes = ventas
 
-    ax1 = plt.subplots()
+    fig,ax1 = plt.subplots()
     ax1.pie(sizes, explode=None, labels=labels, autopct='%1.1f%%',
             shadow=True, startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
     plt.savefig(fullpathreportes, bbox_inches='tight')
     plt.show()
-    plt.close()
+    #plt.close()
 
     return
 
