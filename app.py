@@ -23,6 +23,7 @@ ventas = []
 carpetareportes = 'reportes'
 imagefilename = 'grafica.png'
 fullpathreportes = os.getcwd() + '/' + carpetareportes + '/' + imagefilename
+fullpathreportes = os.getcwd() + '/report.html'
 
 
 def AbrirArchivoData():
@@ -113,6 +114,7 @@ def Reporte():
     # MacOS
     # chrome_path = "open -a /Applications/Google\ Chrome.app %s"
     # webbrowser.get(chrome_path).open('www.apple.com')
+    webbrowser.open(fullpathreportes)
 
 
 def GraficaPie():
