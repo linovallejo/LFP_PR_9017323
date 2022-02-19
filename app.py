@@ -1,4 +1,5 @@
 # Import the necessary packages
+from distutils.log import error
 from fileinput import filename
 from hashlib import new
 import this
@@ -8,22 +9,31 @@ from consolemenu.items import *
 import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
-import matplotlib.pyplot as plt
 import utils
 import webbrowser
 import os
+import graphs
 
 meses = {'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'}
-simbolos = {'dos_puntos': ':', 'igual':'=', 'parentesis_abierto':'(', 'parentesis_cerrado': ')', 'corchete_abierto':'[', 'comilla':'"', 'coma':',', 'punto_coma':';', 'corchete_cerrado':']'}
+simbolos = {'dos_puntos': ':', 'igual':'=', 'parentesis_abierto':'(', 'parentesis_cerrado': ')', 'corchete_abierto':'[', 'comilla':'"', 'coma':',', 'punto_coma':';', 'corchete_cerrado':']','apertura_instrucciones':'<¿','cierre_instrucciones':'?>'}
 mes = None
 anio = None
 errores = []
 productos = []
 ventas = []
+nombrearchivografica = ''
+tipografica = ''
+titulografica=''
+titulox=''
+tituloy=''
+carpetagraficas = 'imagenes'
+fullpathgraficas = f'{os.getcwd()}/{carpetagraficas}/'
+extensionarchivografica = '.png'
 carpetareportes = 'reportes'
-imagefilename = 'grafica.png'
-fullpathreportes = os.getcwd() + '/' + carpetareportes + '/' + imagefilename
-fullpathreportes = os.getcwd() + '/report.html'
+htmltemplate = 'template.html'
+templatehtmlpath = f'{os.getcwd()}/{carpetareportes}/{htmltemplate}'
+instrucciones = {'nombre': 'Nombre:', 'grafica' : 'Grafica:', 'titulo':'Titulo:', 'titulox':'Titulox:', 'tituloy':'Tituloy'}
+errorcritico = False
 
 
 def AbrirArchivoData():
@@ -52,6 +62,8 @@ def AbrirArchivoData():
                 errores.append('Mes o anio son invalidos')
             if mes is None and anio is None:
                 errores.append('Ambos mes y anio son invalidos')
+            if mes is not None and anio is not None:
+                titulografica = f'Reporte de Ventas {mes}-{anio} '
         
         if ((simbolos['corchete_abierto'] in linea) and (simbolos['punto_coma'] in linea) and (simbolos['corchete_cerrado'] in linea)):
             linea = linea.replace(simbolos['comilla'],'')
@@ -92,49 +104,75 @@ def AbrirArchivoInstrucciones():
     if nombreArchivo == '':
         return
     tf = open(nombreArchivo, 'r')
-    contenido = tf.read()
+    contenido = tf.readlines()
+    for linea in contenido:
+        if (simbolos['apertura_instrucciones'] in linea):
+            apertura = True
+            if (instrucciones['nombre'] in linea):
+                nombrearchivografica = linea.split(':')[1].strip().replace('"','')
+            elif (instrucciones['grafica'] in linea):
+                tipografica = linea.split(':')[1].strip().replace('"','').upper()
+            elif (instrucciones['titulo'] in linea):
+                titulografica = linea.split(':')[1].strip().replace('"','')
+            elif (instrucciones['titulox'] in linea):
+                titulox = linea.split(':')[1].strip().replace('"','')
+            elif (instrucciones['tituloy'] in linea):
+                tituloy = linea.split(':')[1].strip().replace('"','')
+
+        if (simbolos['cierre_instrucciones'] in linea):
+            cierre = True
+        
+        if not (apertura and cierre):
+            errores.append('Formato de archivo de instrucciones es invalido')
+            errorcritico = True
+    
+    if not nombrearchivografica:
+        errores.append('Nombre de archivo de grafica es un parametro obligatorio')
+        errorcritico = True
+
+    if not tipografica:
+        errores.append('Tipo de grafica es un parametro obligatorio')
+        errorcritico = True
+    elif (tipografica != 'BARRAS' and tipografica != 'LINEAS' and tipografica != 'PIE'):
+        errores.append('Tipo de grafica invalido')
+        errorcritico = True
+
+
     tf.close()
 
 
-def Analizar():
-    print('Analizar')
+        
 
 def Reporte():
-#     html = """<html>
-#     <header>
-#         <title>Reporte Mes de Enero 2022</title>
-#     </header>
-#     <body>
-#         <div>
-#             Hello Reports!
-#         </div>
-#     </body>
-# </html>"""
-    filename = "file:///home/linovallejo/Projects/LFP_PR_9017323/report.html"
-    # MacOS
-    # chrome_path = "open -a /Applications/Google\ Chrome.app %s"
-    # webbrowser.get(chrome_path).open('www.apple.com')
-    webbrowser.open(fullpathreportes)
+    if not errorcritico:
+    #     html = """<html>
+    #     <header>
+    #         <title>Reporte Mes de Enero 2022</title>
+    #     </header>
+    #     <body>
+    #         <div>
+    #             Hello Reports!
+    #         </div>
+    #     </body>
+    # </html>"""
+        filename = "file:///home/linovallejo/Projects/LFP_PR_9017323/report.html"
+        # MacOS
+        # chrome_path = "open -a /Applications/Google\ Chrome.app %s"
+        # webbrowser.get(chrome_path).open('www.apple.com')
+        webbrowser.open(fullpathreportes)
 
 
-def GraficaPie():
-    # Pie chart, where the slices will be ordered and plotted counter-clockwise:
-    # labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
-    # sizes = [15, 30, 45, 10]
-    # explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
-    labels = productos
-    sizes = ventas
 
-    fig,ax1 = plt.subplots()
-    ax1.pie(sizes, explode=None, labels=labels, autopct='%1.1f%%',
-            shadow=True, startangle=90)
-    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
-    plt.savefig(fullpathreportes, bbox_inches='tight')
-    plt.show()
-    #plt.close()
-
-    return
+def Analizar():
+    if not errorcritico:
+        fullpathgraficas = fullpathgraficas + nombrearchivografica + extensionarchivografica
+        if tipografica == 'BARRAS':
+            graphs.GraficaBarras(productos, ventas)
+        elif tipografica == 'LINEAS':
+            graphs.GraficaLineas(productos, ventas)
+        elif tipografica == 'PIE':
+            graphs.GraficaPie(productos, ventas)
 
 
 menu = ConsoleMenu("Generador de Reportes de Ventas", exit_option_text="Salir")
@@ -144,13 +182,11 @@ menu_item = MenuItem("Menu Item")
 function_item_cargar_datos = FunctionItem("Cargar Data", AbrirArchivoData)
 function_item_cargar_instrucciones = FunctionItem("Cargar Instrucciones", AbrirArchivoInstrucciones)
 function_item_analizar = FunctionItem("Analizar", Analizar)
-function_item_grafica = FunctionItem("Grafica", GraficaPie)
-function_item_reporte = FunctionItem("Reporte", Reporte)
+function_item_reporte = FunctionItem("Reportes", Reporte)
 
 menu.append_item(function_item_cargar_datos)
 menu.append_item(function_item_cargar_instrucciones)
 menu.append_item(function_item_analizar)
-menu.append_item(function_item_grafica)
 menu.append_item(function_item_reporte)
 
 menu.show()
