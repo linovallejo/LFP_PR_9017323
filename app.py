@@ -208,6 +208,7 @@ def Reporte():
         htmltablaproductos = ''
         datos = {}
         datos = utils.combina_ordena_datos(productos, ventas)
+        totalventas = 10,500.23
         productomasvendido = datos[0]
         productomenosvendido = datos[-1]
         for producto in datos:
@@ -221,6 +222,7 @@ def Reporte():
         html = html.replace('{carnetestudiante}', carnetestudiante)
         html = html.replace('{tituloreporte}', titulografica)
         html = html.replace('{tablaventas}', htmltablaproductos)
+        html = html.replace('{totalventas}', str(totalventas))
         html = html.replace('{productomasvendido}', productomasvendido[0])
         html = html.replace('{productomenosvendido}', productomenosvendido[0])
         print(html)
