@@ -15,6 +15,9 @@ import webbrowser
 import os
 import graphs
 
+archivodatoscargado = False
+archivoinstruccionescargado =  False
+analisisrealizado = False
 meses = {'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'}
 simbolos = {'dos_puntos': ':', 'igual':'=', 'parentesis_abierto':'(', 'parentesis_cerrado': ')', 'corchete_abierto':'[', 'comilla':'"', 'coma':',', 'punto_coma':';', 'corchete_cerrado':']','apertura_instrucciones':'<¿','cierre_instrucciones':'?>'}
 mes = None
@@ -39,7 +42,6 @@ productomenosvendido = ''
 fullpathreportes = f'{os.getcwd()}/{carpetareportes}/'
 nombreestudiante = 'Lino Antonio Garcia Vallejo'
 carnetestudiante = '9017323'
-errorcritico = False
 
 
 def AbrirArchivoData():
@@ -59,15 +61,24 @@ def AbrirArchivoData():
             if (linea[0].upper() in meses):
                 mes = linea[0].upper()
             else:
-                errores.append('Mes invalido')
+                utils.manejador_errores(mensaje='Mes invalido en el archivo de datos. Corrijalo y vuelva a cargar el archivo.')
+                archivodatoscargado = False
+                return
             if (linea[2].isdigit()):                
                 anio = linea[2]
             else:
-                errores.append('Anio invalido')
+                utils.manejador_errores(mensaje='Anio invalido en el archivo de datos. Corrijalo y vuelva a cargar el archivo.')
+                archivodatoscargado = False
+                return
             if mes is None or anio is None:
-                errores.append('Mes o anio son invalidos')
+                utils.manejador_errores(mensaje='El Mes o el Anio es(son) invalido(s) en el archivo de datos. Corrijalo(s) y vuelva a cargar el archivo.')
+                archivodatoscargado = False
+                return
+                
             if mes is None and anio is None:
-                errores.append('Ambos mes y anio son invalidos')
+                utils.manejador_errores(mensaje='Ambos Mes y Anio son invalidos en el archivo de datos. Corrijalos y vuelva a cargar el archivo.')
+                archivodatoscargado = False
+                return
             if mes is not None and anio is not None:
                 titulografica = f'Reporte de Ventas {mes}-{anio} '
         
@@ -101,58 +112,81 @@ def AbrirArchivoData():
             
             ventas.append(round(monto_ventas,2))
 
-
+    archivodatoscargado = True
     tf.close()
 
-    
 
 def AbrirArchivoInstrucciones():
-    filetypes = [("Archivos de Instruccionese", "*.lfp")]
-    nombreArchivo = fd.askopenfilename(filetypes=filetypes, title="Seleccione un archivo .lfp")
-    if nombreArchivo == '':
-        return
-    tf = open(nombreArchivo, 'r')
-    contenido = tf.readlines()
-    for linea in contenido:
-        if (simbolos['apertura_instrucciones'] in linea):
-            apertura = True
-            if (instrucciones['nombre'] in linea):
-                nombrearchivografica = linea.split(':')[1].strip().replace('"','')
-            elif (instrucciones['grafica'] in linea):
-                tipografica = linea.split(':')[1].strip().replace('"','').upper()
-            elif (instrucciones['titulo'] in linea):
-                titulografica = linea.split(':')[1].strip().replace('"','')
-            elif (instrucciones['titulox'] in linea):
-                titulox = linea.split(':')[1].strip().replace('"','')
-            elif (instrucciones['tituloy'] in linea):
-                tituloy = linea.split(':')[1].strip().replace('"','')
+    if not archivodatoscargado:
+        utils.manejador_errores(mensaje='El archivo de datos aun no ha sido cargado. Utilice la opcion 1 en el menu para cargarlo y luego vuelva a intentar esta operacion.')
+    else:
+        filetypes = [("Archivos de Instruccionese", "*.lfp")]
+        nombreArchivo = fd.askopenfilename(filetypes=filetypes, title="Seleccione un archivo .lfp")
+        if nombreArchivo == '':
+            return
+        tf = open(nombreArchivo, 'r')
+        contenido = tf.readlines()
+        for linea in contenido:
+            if (simbolos['apertura_instrucciones'] in linea):
+                apertura = True
+                if (instrucciones['nombre'] in linea):
+                    nombrearchivografica = linea.split(':')[1].strip().replace('"','')
+                elif (instrucciones['grafica'] in linea):
+                    tipografica = linea.split(':')[1].strip().replace('"','').upper()
+                elif (instrucciones['titulo'] in linea):
+                    titulografica = linea.split(':')[1].strip().replace('"','')
+                elif (instrucciones['titulox'] in linea):
+                    titulox = linea.split(':')[1].strip().replace('"','')
+                elif (instrucciones['tituloy'] in linea):
+                    tituloy = linea.split(':')[1].strip().replace('"','')
 
-        if (simbolos['cierre_instrucciones'] in linea):
-            cierre = True
+            if (simbolos['cierre_instrucciones'] in linea):
+                cierre = True
+            
+            if not (apertura and cierre):
+                errores.append('Formato de archivo de instrucciones es invalido')
+                errorcritico = True
         
-        if not (apertura and cierre):
-            errores.append('Formato de archivo de instrucciones es invalido')
-            errorcritico = True
-    
-    if not nombrearchivografica:
-        errores.append('Nombre de archivo de grafica es un parametro obligatorio')
-        errorcritico = True
+        if not nombrearchivografica:
+            utils.manejador_errores(mensaje='Nombre de archivo de grafica es un parametro obligatorio')
+            archivoinstruccionescargado = False
+            return
 
-    if not tipografica:
-        errores.append('Tipo de grafica es un parametro obligatorio')
-        errorcritico = True
-    elif (tipografica != 'BARRAS' and tipografica != 'LINEAS' and tipografica != 'PIE'):
-        errores.append('Tipo de grafica invalido')
-        errorcritico = True
+        if not tipografica:
+            utils.manejador_errores(mensaje='Tipo de grafica es un parametro obligatorio')
+            archivoinstruccionescargado = False
+            return
+
+        elif (tipografica != 'BARRAS' and tipografica != 'LINEAS' and tipografica != 'PIE'):
+            utils.manejador_errores(mensaje='Tipo de grafica es invalido')
+            archivoinstruccionescargado = False
+            return
+
+        archivoinstruccionescargado = True
+
+        tf.close()
 
 
-    tf.close()
 
 
-        
+def Analizar():
+    if not archivodatoscargado and not archivoinstruccionescargado:
+        utils.manejador_errores(mensaje='Debe cargar tanto el archivo de datos como el de instrucciones antes de Analizar. Utilice las opciones 1 y 2 en el menu para cargarlos y luego vuelva a intentar esta operacion.')
+    else:
+        fullpathgraficas = fullpathgraficas + nombrearchivografica + extensionarchivografica
+        if tipografica == 'BARRAS':
+            graphs.GraficaBarras(productos, ventas)
+        elif tipografica == 'LINEAS':
+            graphs.GraficaLineas(productos, ventas)
+        elif tipografica == 'PIE':
+            graphs.GraficaPie(productos, ventas)
+        analisisrealizado = True
+
 
 def Reporte():
-    if not errorcritico:
+    if not archivodatoscargado and not archivoinstruccionescargado and not analisisrealizado:
+        utils.manejador_errores(mensaje='Debe cargar tanto el archivo de datos como el de instrucciones y analizar la informacion antes de generar el Reporte. Utilice las opciones 1, 2, y 3 en el menu para cargarlos y Analizar; luego vuelva a intentar esta operacion.')
+    else:
         #filename = "file:///home/linovallejo/Projects/LFP_PR_9017323/report.html"
         #webbrowser.open(fullpathreportes)
         htmlapertura = """<div class="row">
@@ -188,22 +222,10 @@ def Reporte():
             try:
                 rep.write(html)
             except:
-                errores.append('No se pudo crear el reporte. Contacte a soporte tecnico ;-).')
+                utils.manejador_errores(mensaje='No se pudo crear el reporte. Contacte a soporte tecnico ;-).')
                 return False
 
         webbrowser.open(archivohtmlreporte) 
-
-
-def Analizar():
-    if not errorcritico:
-        fullpathgraficas = fullpathgraficas + nombrearchivografica + extensionarchivografica
-        if tipografica == 'BARRAS':
-            graphs.GraficaBarras(productos, ventas)
-        elif tipografica == 'LINEAS':
-            graphs.GraficaLineas(productos, ventas)
-        elif tipografica == 'PIE':
-            graphs.GraficaPie(productos, ventas)
-
 
 menu = ConsoleMenu("Generador de Reportes de Ventas", exit_option_text="Salir")
 

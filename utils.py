@@ -1,3 +1,5 @@
+from tkinter import messagebox as mb
+
 def is_float(n):
     try:
         float(n) 
@@ -11,3 +13,11 @@ def combina_ordena_datos(productos, ventas):
 	    d[p] = (ventas[productos.index(p)])
     sorted_dict = sorted(dict.items(), key=lambda x: x[1], reverse=True)
     return sorted_dict
+
+def manejador_errores(mensaje, iswarning=False):
+    if iswarning:
+        mb.showwarning(mensaje)
+    else:
+        mb.showerror(mensaje)
+    return
+
