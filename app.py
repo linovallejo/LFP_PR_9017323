@@ -47,70 +47,73 @@ carnetestudiante = '9017323'
 def AbrirArchivoData():
     global mes, anio, errores, productos, ventas, archivodatoscargado, titulografica
     filetypes = [("Archivos de Data", "*.data")]
+    root = tk
     archivodatos = fd.askopenfilename(filetypes=filetypes, title="Seleccione un archivo .data")
-    if archivodatos == '':
+    if archivodatos is None or archivodatos == ():
+        archivodatoscargado = False
         return
-    tf = open(archivodatos, 'r')
-    contenido = tf.readlines()
-    for linea in contenido:
-        precio = 0
-        cantidad = 0
-        monto_ventas = 0
-        if ((simbolos['dos_puntos'] in linea) and (simbolos['igual']) and (simbolos['parentesis_abierto'])):
-            linea = linea.split()
-            if (linea[0].upper() in meses):
-                mes = linea[0].upper()
-            else:
-                utils.manejador_errores(mensaje='Mes invalido en el archivo de datos. Corrijalo y vuelva a cargar el archivo.')
-                archivodatoscargado = False
-                return
-            if (linea[2].isdigit()):                
-                anio = linea[2]
-            else:
-                utils.manejador_errores(mensaje='Anio invalido en el archivo de datos. Corrijalo y vuelva a cargar el archivo.')
-                archivodatoscargado = False
-                return
-            if mes is None or anio is None:
-                utils.manejador_errores(mensaje='El Mes o el Anio es(son) invalido(s) en el archivo de datos. Corrijalo(s) y vuelva a cargar el archivo.')
-                archivodatoscargado = False
-                return
+    else:
+        tf = open(archivodatos, 'r')
+        contenido = tf.readlines()
+        for linea in contenido:
+            precio = 0
+            cantidad = 0
+            monto_ventas = 0
+            if ((simbolos['dos_puntos'] in linea) and (simbolos['igual']) and (simbolos['parentesis_abierto'])):
+                linea = linea.split()
+                if (linea[0].upper() in meses):
+                    mes = linea[0].upper()
+                else:
+                    utils.manejador_errores(mensaje='Mes invalido en el archivo de datos. Corrijalo y vuelva a cargar el archivo.')
+                    archivodatoscargado = False
+                    return
+                if (linea[2].isdigit()):                
+                    anio = linea[2]
+                else:
+                    utils.manejador_errores(mensaje='Anio invalido en el archivo de datos. Corrijalo y vuelva a cargar el archivo.')
+                    archivodatoscargado = False
+                    return
+                if mes is None or anio is None:
+                    utils.manejador_errores(mensaje='El Mes o el Anio es(son) invalido(s) en el archivo de datos. Corrijalo(s) y vuelva a cargar el archivo.')
+                    archivodatoscargado = False
+                    return
+                    
+                if mes is None and anio is None:
+                    utils.manejador_errores(mensaje='Ambos Mes y Anio son invalidos en el archivo de datos. Corrijalos y vuelva a cargar el archivo.')
+                    archivodatoscargado = False
+                    return
+                if mes is not None and anio is not None:
+                    titulografica = f'Reporte de Ventas {mes}-{anio} '
+            
+            if ((simbolos['corchete_abierto'] in linea) and (simbolos['punto_coma'] in linea) and (simbolos['corchete_cerrado'] in linea)):
+                linea = linea.replace(simbolos['comilla'],'')
+                linea = linea.replace(simbolos['corchete_abierto'],'')
+                linea = linea.replace(simbolos['corchete_cerrado'],'')
+                linea = linea.replace(simbolos['punto_coma'],'')
+                linea = linea.split(simbolos['coma'])
+                if linea[0].strip() != '':
+                    productos.append(linea[0].strip())
+                else:
+                    errores.append('Nombre de producto faltante')
                 
-            if mes is None and anio is None:
-                utils.manejador_errores(mensaje='Ambos Mes y Anio son invalidos en el archivo de datos. Corrijalos y vuelva a cargar el archivo.')
-                archivodatoscargado = False
-                return
-            if mes is not None and anio is not None:
-                titulografica = f'Reporte de Ventas {mes}-{anio} '
-        
-        if ((simbolos['corchete_abierto'] in linea) and (simbolos['punto_coma'] in linea) and (simbolos['corchete_cerrado'] in linea)):
-            linea = linea.replace(simbolos['comilla'],'')
-            linea = linea.replace(simbolos['corchete_abierto'],'')
-            linea = linea.replace(simbolos['corchete_cerrado'],'')
-            linea = linea.replace(simbolos['punto_coma'],'')
-            linea = linea.split(simbolos['coma'])
-            if linea[0].strip() != '':
-                productos.append(linea[0].strip())
-            else:
-                errores.append('Nombre de producto faltante')
-            
-            if linea[1].strip() == '':
-                precio = 0
-            else:
-                if utils.is_float(linea[1].strip()):
-                    precio = float(linea[1].strip())
+                if linea[1].strip() == '':
+                    precio = 0
                 else:
-                    errores.append('Precio invalido')
-            if linea[2].strip() == '':
-                cantidad = 0
-            else:
-                if linea[2].strip().isnumeric():
-                    cantidad = int(linea[2].strip())
+                    if utils.is_float(linea[1].strip()):
+                        precio = float(linea[1].strip())
+                    else:
+                        errores.append('Precio invalido')
+                if linea[2].strip() == '':
+                    cantidad = 0
                 else:
-                    errores.append('Cantidad invalido')
+                    if linea[2].strip().isnumeric():
+                        cantidad = int(linea[2].strip())
+                    else:
+                        errores.append('Cantidad invalido')
 
-            monto_ventas = precio * float(cantidad)
-            
-            ventas.append(round(monto_ventas,2))
+                monto_ventas = precio * float(cantidad)
+                
+                ventas.append(round(monto_ventas,2))
 
     archivodatoscargado = True
     tf.close()
@@ -126,49 +129,51 @@ def AbrirArchivoInstrucciones():
     else:
         filetypes = [("Archivos de Instruccionese", "*.lfp")]
         archivoinstrucciones = fd.askopenfilename(filetypes=filetypes, title="Seleccione un archivo .lfp")
-        if archivoinstrucciones == '':
-            return
-        tf = open(archivoinstrucciones, 'r')
-        contenido = tf.readlines()
-        for linea in contenido:
-            if (simbolos['apertura_instrucciones'] in linea):
-                apertura = True
-            if (instrucciones['nombre'] in linea):
-                nombrearchivografica = linea.split(':')[1].strip().replace('"','').replace(",","")
-            elif (instrucciones['grafica'] in linea):
-                tipografica = linea.split(':')[1].strip().replace('"','').replace(',','').upper()
-            elif (instrucciones['titulo'] in linea):
-                titulografica = linea.split(':')[1].strip().replace('"','').replace(",","")
-            elif (instrucciones['titulox'] in linea):
-                titulox = linea.split(':')[1].strip().replace('"','').replace(",","")
-            elif (instrucciones['tituloy'] in linea):
-                tituloy = linea.split(':')[1].strip().replace('"','').replace(",","")
+        if archivoinstrucciones is None or archivoinstrucciones == ():
+                archivoinstruccionescargado = False
+                return
+        else:
+            tf = open(archivoinstrucciones, 'r')
+            contenido = tf.readlines()
+            for linea in contenido:
+                if (simbolos['apertura_instrucciones'] in linea):
+                    apertura = True
+                if (instrucciones['nombre'] in linea):
+                    nombrearchivografica = linea.split(':')[1].strip().replace('"','').replace(",","")
+                elif (instrucciones['grafica'] in linea):
+                    tipografica = linea.split(':')[1].strip().replace('"','').replace(',','').upper()
+                elif (instrucciones['titulo'] in linea):
+                    titulografica = linea.split(':')[1].strip().replace('"','').replace(",","")
+                elif (instrucciones['titulox'] in linea):
+                    titulox = linea.split(':')[1].strip().replace('"','').replace(",","")
+                elif (instrucciones['tituloy'] in linea):
+                    tituloy = linea.split(':')[1].strip().replace('"','').replace(",","")
 
-            if (simbolos['cierre_instrucciones'] in linea):
-                cierre = True
+                if (simbolos['cierre_instrucciones'] in linea):
+                    cierre = True
+                
+            if not (apertura and cierre):
+                utils.manejador_errores(mensaje='Formato de archivo de instrucciones es invalido. Corrijalo y vuelva a intentar esta operacion.')
+                archivoinstruccionescargado = False
+                return
             
-        if not (apertura and cierre):
-            utils.manejador_errores(mensaje='Formato de archivo de instrucciones es invalido. Corrijalo y vuelva a intentar esta operacion.')
-            archivoinstruccionescargado = False
-            return
-        
-        if not nombrearchivografica:
-            utils.manejador_errores(mensaje='Nombre de archivo de grafica es un parametro obligatorio')
-            archivoinstruccionescargado = False
-            return
+            if not nombrearchivografica:
+                utils.manejador_errores(mensaje='Nombre de archivo de grafica es un parametro obligatorio')
+                archivoinstruccionescargado = False
+                return
 
-        if not tipografica:
-            utils.manejador_errores(mensaje='Tipo de grafica es un parametro obligatorio')
-            archivoinstruccionescargado = False
-            return
-        elif (tipografica not in tiposgrafica):
-            utils.manejador_errores(mensaje='Tipo de grafica es invalido')
-            archivoinstruccionescargado = False
-            return
+            if not tipografica:
+                utils.manejador_errores(mensaje='Tipo de grafica es un parametro obligatorio')
+                archivoinstruccionescargado = False
+                return
+            elif (tipografica not in tiposgrafica):
+                utils.manejador_errores(mensaje='Tipo de grafica es invalido')
+                archivoinstruccionescargado = False
+                return
 
-        archivoinstruccionescargado = True
+            archivoinstruccionescargado = True
 
-        tf.close()
+            tf.close()
 
 
 
