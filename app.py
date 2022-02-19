@@ -32,6 +32,7 @@ titulox=''
 tituloy=''
 carpetagraficas = 'imagenes'
 fullpathgraficas = f'{os.getcwd()}/{carpetagraficas}/'
+pathrelativograficas = f'../{carpetagraficas}'
 extensionarchivografica = '.png'
 carpetareportes = 'reportes'
 plantillahtml = 'plantilla.html'
@@ -194,29 +195,31 @@ def Analizar():
 
 
 def Reporte():
-    global plantillahtmlpath
+    global plantillahtmlpath, pathrelativograficas, nombrearchivografica, extensionarchivografica
     if not archivodatoscargado and not archivoinstruccionescargado and not analisisrealizado:
         utils.manejador_errores(mensaje='Debe cargar tanto el archivo de datos como el de instrucciones y analizar la informacion antes de generar el Reporte. Utilice las opciones 1, 2, y 3 en el menu para cargarlos y Analizar; luego vuelva a intentar esta operacion.')
     else:
-        #filename = "file:///home/linovallejo/Projects/LFP_PR_9017323/report.html"
-        #webbrowser.open(fullpathreportes)
-        htmlapertura = """<div class="row">
-                    <div class="cell">"""
-        htmlcolumna = """</div><div class="cellright">"""
-        htmlcierre = """
-                    </div></div>"""
+        htmlapertura = "<tr><td>"
+        htmlcolumna = "</td><td align='right'>"
+        htmlcierre = "</td></tr>"
         htmltablaproductos = ''
         datos = {}
         datos = utils.combina_ordena_datos(productos, ventas)
-        totalventas = 10,500.23
+        totalventas = float(sum(ventas))
+        #totalventas = "%.2f" % totalventas
+        totalventas = utils.format_float(totalventas)
         productomasvendido = datos[0]
         productomenosvendido = datos[-1]
+        ventaproducto = 0
         for producto in datos:
-            htmltablaproductos = htmltablaproductos + htmlapertura + producto[0] + htmlcolumna + str(producto[1]) + htmlcierre
+            ventaproducto = utils.format_float(producto[1])
+            htmltablaproductos = htmltablaproductos + htmlapertura + producto[0] + htmlcolumna + str(ventaproducto) + htmlcierre
 
         archivoplantilla = open(plantillahtmlpath)
         html = archivoplantilla.read()
         archivoplantilla.close()
+
+        archivografica = f'{pathrelativograficas}/{nombrearchivografica}{extensionarchivografica}'
 
         html = html.replace('{nombreestudiante}', nombreestudiante)
         html = html.replace('{carnetestudiante}', carnetestudiante)
@@ -225,7 +228,7 @@ def Reporte():
         html = html.replace('{totalventas}', str(totalventas))
         html = html.replace('{productomasvendido}', productomasvendido[0])
         html = html.replace('{productomenosvendido}', productomenosvendido[0])
-        print(html)
+        html = html.replace('{archivografica}', archivografica)
 
         archivohtmlreporte = fullpathreportes + nombrearchivografica + ".html"
 

@@ -10,7 +10,7 @@ def GraficaPie(productos, ventas, fullpathgraficas):
             shadow=True, startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
-    #plt.savefig(fullpathgraficas, bbox_inches='tight')
+    plt.savefig(fullpathgraficas, bbox_inches='tight')
     plt.show()
 
     return
@@ -27,5 +27,5 @@ def GraficaLineas(productos, ventas, fullpathgraficas):
     #ax[0,0].set_title(titulografica)
     ax.plot(productos, ventas)
 
-    #plt.savefig(fullpathgraficas, bbox_inches='tight')
+    plt.savefig(fullpathgraficas, bbox_inches='tight')
     plt.show()

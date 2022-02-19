@@ -1,7 +1,7 @@
 <¿
-Nombre: "reporte02",
-Grafica: "Barras",
-Titulo: "Reporte de Ventas Agosto",
+Nombre: "reporte03",
+Grafica: "Pie",
+Titulo: "Reporte de Ventas Enero 2022",
 TituloX: "Producto",
 TituloY: "Total"
 ?>

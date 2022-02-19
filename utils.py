@@ -1,4 +1,5 @@
 from tkinter import messagebox as mb
+import re
 
 def is_float(n):
     try:
@@ -24,3 +25,8 @@ def manejador_errores(mensaje, iswarning=False):
         mb.showerror(titulo,mensaje)
     return
 
+def format_float(s):
+    s = "%.2f" % float(s)
+    integer, decimal = s.split(".")
+    integer = re.sub(r"\B(?=(?:\d{3})+$)", ",", integer)
+    return integer + "." + decimal
