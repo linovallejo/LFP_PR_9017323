@@ -5,6 +5,7 @@ from hashlib import new
 import this
 from tokenize import Number
 from consolemenu import *
+import consolemenu
 from consolemenu.items import *
 import tkinter as tk
 from tkinter import filedialog as fd
@@ -30,9 +31,14 @@ carpetagraficas = 'imagenes'
 fullpathgraficas = f'{os.getcwd()}/{carpetagraficas}/'
 extensionarchivografica = '.png'
 carpetareportes = 'reportes'
-htmltemplate = 'template.html'
-templatehtmlpath = f'{os.getcwd()}/{carpetareportes}/{htmltemplate}'
+plantillahtml = 'plantilla.html'
+plantillahtmlpath = f'{os.getcwd()}/{carpetareportes}/{plantillahtml}'
 instrucciones = {'nombre': 'Nombre:', 'grafica' : 'Grafica:', 'titulo':'Titulo:', 'titulox':'Titulox:', 'tituloy':'Tituloy'}
+productomasvendido = ''
+productomenosvendido = ''
+fullpathreportes = f'{os.getcwd()}/{carpetareportes}/'
+nombreestudiante = 'Lino Antonio Garcia Vallejo'
+carnetestudiante = '9017323'
 errorcritico = False
 
 
@@ -98,6 +104,8 @@ def AbrirArchivoData():
 
     tf.close()
 
+    
+
 def AbrirArchivoInstrucciones():
     filetypes = [("Archivos de Instruccionese", "*.lfp")]
     nombreArchivo = fd.askopenfilename(filetypes=filetypes, title="Seleccione un archivo .lfp")
@@ -145,23 +153,45 @@ def AbrirArchivoInstrucciones():
 
 def Reporte():
     if not errorcritico:
-    #     html = """<html>
-    #     <header>
-    #         <title>Reporte Mes de Enero 2022</title>
-    #     </header>
-    #     <body>
-    #         <div>
-    #             Hello Reports!
-    #         </div>
-    #     </body>
-    # </html>"""
-        filename = "file:///home/linovallejo/Projects/LFP_PR_9017323/report.html"
-        # MacOS
-        # chrome_path = "open -a /Applications/Google\ Chrome.app %s"
-        # webbrowser.get(chrome_path).open('www.apple.com')
-        webbrowser.open(fullpathreportes)
+        #filename = "file:///home/linovallejo/Projects/LFP_PR_9017323/report.html"
+        #webbrowser.open(fullpathreportes)
+        htmlapertura = """<div class="row">
+                    <div class="cell">"""
+        htmlcolumna = """</div><div class="cellright">"""
+        htmlcierre = """
+                    </div></div>"""
+        htmltablaproductos = ''
+        datos = {}
+        datos = utils.combina_ordena_datos(productos, ventas)
+        productomasvendido = datos[0]
+        productomenosvendido = datos[-1]
+        for producto in datos:
+            htmltablaproductos = htmltablaproductos + htmlapertura + producto[0] + htmlcolumna + producto[1] + htmlcierre
 
+        archivoplantilla = open(plantillahtmlpath)
+        html = archivoplantilla.read()
+        archivoplantilla.close()
 
+        html = html.replace('{nombreestudiante}', nombreestudiante)
+        html = html.replace('{carnetestudiante}', carnetestudiante)
+        html = html.replace('{tituloreporte}', titulografica)
+        html = html.replace('{tablaventas}', htmltablaproductos)
+        html = html.replace('{productomasvendido}', productomasvendido)
+        html = html.replace('{productomenosvendido}', productomenosvendido)
+
+        archivohtmlreporte = fullpathreportes + nombrearchivografica + ".html"
+
+        if (os.path.exists(archivohtmlreporte)):
+            os.remove(archivohtmlreporte)
+
+        with open(archivohtmlreporte, 'w') as rep:
+            try:
+                rep.write(html)
+            except:
+                errores.append('No se pudo crear el reporte. Contacte a soporte tecnico ;-).')
+                return False
+
+        webbrowser.open(archivohtmlreporte) 
 
 
 def Analizar():
@@ -179,10 +209,19 @@ menu = ConsoleMenu("Generador de Reportes de Ventas", exit_option_text="Salir")
 
 menu_item = MenuItem("Menu Item")
 
+def EscribirConsola():
+    #menu.screen.println('Testing')
+    #consolemenu.clear_terminal
+    #consolemenu.Screen.clear
+    #mb.showerror('Que pumas')
+    consolemenu.PromptUtils.clear()
+    #consolemenu.PromptUtils.validate_input
+
+
 function_item_cargar_datos = FunctionItem("Cargar Data", AbrirArchivoData)
 function_item_cargar_instrucciones = FunctionItem("Cargar Instrucciones", AbrirArchivoInstrucciones)
 function_item_analizar = FunctionItem("Analizar", Analizar)
-function_item_reporte = FunctionItem("Reportes", Reporte)
+function_item_reporte = FunctionItem("Reportes", EscribirConsola)
 
 menu.append_item(function_item_cargar_datos)
 menu.append_item(function_item_cargar_instrucciones)
