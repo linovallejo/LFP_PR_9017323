@@ -36,7 +36,7 @@ extensionarchivografica = '.png'
 carpetareportes = 'reportes'
 plantillahtml = 'plantilla.html'
 plantillahtmlpath = f'{os.getcwd()}/{carpetareportes}/{plantillahtml}'
-instrucciones = {'nombre': 'Nombre:', 'grafica' : 'Grafica:', 'titulo':'Titulo:', 'titulox':'Titulox:', 'tituloy':'Tituloy'}
+instrucciones = {'nombre': 'Nombre:', 'grafica' : 'Grafica:', 'titulo':'Titulo:', 'titulox':'TituloX:', 'tituloy':'TituloY'}
 productomasvendido = ''
 productomenosvendido = ''
 fullpathreportes = f'{os.getcwd()}/{carpetareportes}/'
@@ -45,12 +45,12 @@ carnetestudiante = '9017323'
 
 
 def AbrirArchivoData():
-    global mes, anio, errores, productos, ventas
+    global mes, anio, errores, productos, ventas, archivodatoscargado, titulografica
     filetypes = [("Archivos de Data", "*.data")]
-    nombreArchivo = fd.askopenfilename(filetypes=filetypes, title="Seleccione un archivo .data")
-    if nombreArchivo == '':
+    archivodatos = fd.askopenfilename(filetypes=filetypes, title="Seleccione un archivo .data")
+    if archivodatos == '':
         return
-    tf = open(nombreArchivo, 'r')
+    tf = open(archivodatos, 'r')
     contenido = tf.readlines()
     for linea in contenido:
         precio = 0
@@ -117,35 +117,40 @@ def AbrirArchivoData():
 
 
 def AbrirArchivoInstrucciones():
+    global nombrearchivografica, tipografica, titulografica, titulox, tituloy, archivoinstruccionescargado
+    apertura = False
+    cierre = False
+    tiposgrafica = ['BARRAS','LINEAS','PIE']
     if not archivodatoscargado:
         utils.manejador_errores(mensaje='El archivo de datos aun no ha sido cargado. Utilice la opcion 1 en el menu para cargarlo y luego vuelva a intentar esta operacion.')
     else:
         filetypes = [("Archivos de Instruccionese", "*.lfp")]
-        nombreArchivo = fd.askopenfilename(filetypes=filetypes, title="Seleccione un archivo .lfp")
-        if nombreArchivo == '':
+        archivoinstrucciones = fd.askopenfilename(filetypes=filetypes, title="Seleccione un archivo .lfp")
+        if archivoinstrucciones == '':
             return
-        tf = open(nombreArchivo, 'r')
+        tf = open(archivoinstrucciones, 'r')
         contenido = tf.readlines()
         for linea in contenido:
             if (simbolos['apertura_instrucciones'] in linea):
                 apertura = True
-                if (instrucciones['nombre'] in linea):
-                    nombrearchivografica = linea.split(':')[1].strip().replace('"','')
-                elif (instrucciones['grafica'] in linea):
-                    tipografica = linea.split(':')[1].strip().replace('"','').upper()
-                elif (instrucciones['titulo'] in linea):
-                    titulografica = linea.split(':')[1].strip().replace('"','')
-                elif (instrucciones['titulox'] in linea):
-                    titulox = linea.split(':')[1].strip().replace('"','')
-                elif (instrucciones['tituloy'] in linea):
-                    tituloy = linea.split(':')[1].strip().replace('"','')
+            if (instrucciones['nombre'] in linea):
+                nombrearchivografica = linea.split(':')[1].strip().replace('"','').replace(",","")
+            elif (instrucciones['grafica'] in linea):
+                tipografica = linea.split(':')[1].strip().replace('"','').replace(',','').upper()
+            elif (instrucciones['titulo'] in linea):
+                titulografica = linea.split(':')[1].strip().replace('"','').replace(",","")
+            elif (instrucciones['titulox'] in linea):
+                titulox = linea.split(':')[1].strip().replace('"','').replace(",","")
+            elif (instrucciones['tituloy'] in linea):
+                tituloy = linea.split(':')[1].strip().replace('"','').replace(",","")
 
             if (simbolos['cierre_instrucciones'] in linea):
                 cierre = True
             
-            if not (apertura and cierre):
-                errores.append('Formato de archivo de instrucciones es invalido')
-                errorcritico = True
+        if not (apertura and cierre):
+            utils.manejador_errores(mensaje='Formato de archivo de instrucciones es invalido. Corrijalo y vuelva a intentar esta operacion.')
+            archivoinstruccionescargado = False
+            return
         
         if not nombrearchivografica:
             utils.manejador_errores(mensaje='Nombre de archivo de grafica es un parametro obligatorio')
@@ -156,8 +161,7 @@ def AbrirArchivoInstrucciones():
             utils.manejador_errores(mensaje='Tipo de grafica es un parametro obligatorio')
             archivoinstruccionescargado = False
             return
-
-        elif (tipografica != 'BARRAS' and tipografica != 'LINEAS' and tipografica != 'PIE'):
+        elif (tipografica not in tiposgrafica):
             utils.manejador_errores(mensaje='Tipo de grafica es invalido')
             archivoinstruccionescargado = False
             return
@@ -170,20 +174,22 @@ def AbrirArchivoInstrucciones():
 
 
 def Analizar():
+    global fullpathgraficas, analisisrealizado, nombrearchivografica, extensionarchivografica
     if not archivodatoscargado and not archivoinstruccionescargado:
         utils.manejador_errores(mensaje='Debe cargar tanto el archivo de datos como el de instrucciones antes de Analizar. Utilice las opciones 1 y 2 en el menu para cargarlos y luego vuelva a intentar esta operacion.')
     else:
         fullpathgraficas = fullpathgraficas + nombrearchivografica + extensionarchivografica
         if tipografica == 'BARRAS':
-            graphs.GraficaBarras(productos, ventas)
+            graphs.GraficaBarras(productos, ventas, fullpathgraficas)
         elif tipografica == 'LINEAS':
-            graphs.GraficaLineas(productos, ventas)
+            graphs.GraficaLineas(productos, ventas, fullpathgraficas)
         elif tipografica == 'PIE':
-            graphs.GraficaPie(productos, ventas)
+            graphs.GraficaPie(productos, ventas, fullpathgraficas)
         analisisrealizado = True
 
 
 def Reporte():
+    global plantillahtmlpath
     if not archivodatoscargado and not archivoinstruccionescargado and not analisisrealizado:
         utils.manejador_errores(mensaje='Debe cargar tanto el archivo de datos como el de instrucciones y analizar la informacion antes de generar el Reporte. Utilice las opciones 1, 2, y 3 en el menu para cargarlos y Analizar; luego vuelva a intentar esta operacion.')
     else:
@@ -200,7 +206,7 @@ def Reporte():
         productomasvendido = datos[0]
         productomenosvendido = datos[-1]
         for producto in datos:
-            htmltablaproductos = htmltablaproductos + htmlapertura + producto[0] + htmlcolumna + producto[1] + htmlcierre
+            htmltablaproductos = htmltablaproductos + htmlapertura + producto[0] + htmlcolumna + str(producto[1]) + htmlcierre
 
         archivoplantilla = open(plantillahtmlpath)
         html = archivoplantilla.read()
@@ -210,8 +216,9 @@ def Reporte():
         html = html.replace('{carnetestudiante}', carnetestudiante)
         html = html.replace('{tituloreporte}', titulografica)
         html = html.replace('{tablaventas}', htmltablaproductos)
-        html = html.replace('{productomasvendido}', productomasvendido)
-        html = html.replace('{productomenosvendido}', productomenosvendido)
+        html = html.replace('{productomasvendido}', productomasvendido[0])
+        html = html.replace('{productomenosvendido}', productomenosvendido[0])
+        print(html)
 
         archivohtmlreporte = fullpathreportes + nombrearchivografica + ".html"
 
@@ -225,25 +232,16 @@ def Reporte():
                 utils.manejador_errores(mensaje='No se pudo crear el reporte. Contacte a soporte tecnico ;-).')
                 return False
 
-        webbrowser.open(archivohtmlreporte) 
+        #webbrowser.open(archivohtmlreporte) 
 
 menu = ConsoleMenu("Generador de Reportes de Ventas", exit_option_text="Salir")
 
 menu_item = MenuItem("Menu Item")
 
-def EscribirConsola():
-    #menu.screen.println('Testing')
-    #consolemenu.clear_terminal
-    #consolemenu.Screen.clear
-    #mb.showerror('Que pumas')
-    consolemenu.PromptUtils.clear()
-    #consolemenu.PromptUtils.validate_input
-
-
 function_item_cargar_datos = FunctionItem("Cargar Data", AbrirArchivoData)
 function_item_cargar_instrucciones = FunctionItem("Cargar Instrucciones", AbrirArchivoInstrucciones)
 function_item_analizar = FunctionItem("Analizar", Analizar)
-function_item_reporte = FunctionItem("Reportes", EscribirConsola)
+function_item_reporte = FunctionItem("Reportes", Reporte)
 
 menu.append_item(function_item_cargar_datos)
 menu.append_item(function_item_cargar_instrucciones)

@@ -10,14 +10,17 @@ def is_float(n):
 def combina_ordena_datos(productos, ventas):
     dict = {}
     for p in productos:
-	    d[p] = (ventas[productos.index(p)])
+	    dict[p] = (ventas[productos.index(p)])
     sorted_dict = sorted(dict.items(), key=lambda x: x[1], reverse=True)
     return sorted_dict
 
 def manejador_errores(mensaje, iswarning=False):
+    titulo = ''
     if iswarning:
-        mb.showwarning(mensaje)
+        titulo = 'Precaucion'
+        mb.showwarning(titulo, mensaje)
     else:
-        mb.showerror(mensaje)
+        titulo='Error'
+        mb.showerror(titulo,mensaje)
     return
 
