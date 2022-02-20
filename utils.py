@@ -8,6 +8,16 @@ def is_float(n):
         return False
     return True
 
+def is_positive_integer(n):
+    try:
+        val = int(n)
+        if int(n) >= 0:
+            return True
+        else:
+            return False
+    except ValueError:
+        return False 
+
 def combina_ordena_datos(productos, ventas):
     dict = {}
     for p in productos:
@@ -25,8 +35,8 @@ def manejador_errores(mensaje, iswarning=False):
         mb.showerror(titulo,mensaje)
     return
 
-def format_float(s):
+def format_money(s):
     s = "%.2f" % float(s)
     integer, decimal = s.split(".")
     integer = re.sub(r"\B(?=(?:\d{3})+$)", ",", integer)
-    return integer + "." + decimal
+    return 'Q. ' + integer + "." + decimal

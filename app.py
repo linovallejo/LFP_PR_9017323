@@ -92,25 +92,25 @@ def AbrirArchivoData():
                 linea = linea.replace(simbolos['corchete_cerrado'],'')
                 linea = linea.replace(simbolos['punto_coma'],'')
                 linea = linea.split(simbolos['coma'])
-                if linea[0].strip() != '':
+                if linea[0].strip() != '' or linea[0] is None:
                     productos.append(linea[0].strip())
                 else:
-                    errores.append('Nombre de producto faltante')
+                    utils.manejador_errores(mensaje='Nombre de producto faltante. Revise el archivo de datos.')
                 
-                if linea[1].strip() == '':
+                if linea[1].strip() == '' or linea[1] is None:
                     precio = 0
                 else:
                     if utils.is_float(linea[1].strip()):
                         precio = float(linea[1].strip())
                     else:
-                        errores.append('Precio invalido')
-                if linea[2].strip() == '':
+                        utils.manejador_errores(mensaje='Precio invalido. Revise el archivo de datos.')
+                if linea[2].strip() == '' or linea[2] is None:
                     cantidad = 0
                 else:
-                    if linea[2].strip().isnumeric():
+                    if utils.is_positive_integer(linea[2].strip()):
                         cantidad = int(linea[2].strip())
                     else:
-                        errores.append('Cantidad invalido')
+                        utils.manejador_errores(mensaje='Cantidad de unidades vendidas invalida. Revise el archivo de datos.')
 
                 monto_ventas = precio * float(cantidad)
                 
@@ -159,16 +159,16 @@ def AbrirArchivoInstrucciones():
                 return
             
             if not nombrearchivografica:
-                utils.manejador_errores(mensaje='Nombre de archivo de grafica es un parametro obligatorio')
+                utils.manejador_errores(mensaje='Nombre de archivo de grafica es un parametro obligatorio. Revise el archivo de instrucciones.')
                 archivoinstruccionescargado = False
                 return
 
             if not tipografica:
-                utils.manejador_errores(mensaje='Tipo de grafica es un parametro obligatorio')
+                utils.manejador_errores(mensaje='Tipo de grafica es un parametro obligatorio. Revise el archivo de instrucciones.')
                 archivoinstruccionescargado = False
                 return
             elif (tipografica not in tiposgrafica):
-                utils.manejador_errores(mensaje='Tipo de grafica es invalido')
+                utils.manejador_errores(mensaje='Tipo de grafica es invalido. Revise el archivo de instrucciones.')
                 archivoinstruccionescargado = False
                 return
 
@@ -181,23 +181,24 @@ def AbrirArchivoInstrucciones():
 
 def Analizar():
     global fullpathgraficas, analisisrealizado, nombrearchivografica, extensionarchivografica
-    if not archivodatoscargado and not archivoinstruccionescargado:
+    if not archivodatoscargado or not archivoinstruccionescargado:
         utils.manejador_errores(mensaje='Debe cargar tanto el archivo de datos como el de instrucciones antes de Analizar. Utilice las opciones 1 y 2 en el menu para cargarlos y luego vuelva a intentar esta operacion.')
     else:
-        fullpathgraficas = fullpathgraficas + nombrearchivografica + extensionarchivografica
+        fullpathgraficaslocal = ''
+        fullpathgraficaslocal = fullpathgraficas + nombrearchivografica + extensionarchivografica
         if tipografica == 'BARRAS':
-            graphs.GraficaBarras(productos, ventas, fullpathgraficas)
+            graphs.GraficaBarras(productos, ventas, fullpathgraficaslocal)
         elif tipografica == 'LINEAS':
-            graphs.GraficaLineas(productos, ventas, fullpathgraficas)
+            graphs.GraficaLineas(productos, ventas, fullpathgraficaslocal)
         elif tipografica == 'PIE':
-            graphs.GraficaPie(productos, ventas, fullpathgraficas)
+            graphs.GraficaPie(productos, ventas, fullpathgraficaslocal)
         analisisrealizado = True
 
 
 def Reporte():
-    global plantillahtmlpath, pathrelativograficas, nombrearchivografica, extensionarchivografica
-    if not archivodatoscargado and not archivoinstruccionescargado and not analisisrealizado:
-        utils.manejador_errores(mensaje='Debe cargar tanto el archivo de datos como el de instrucciones y analizar la informacion antes de generar el Reporte. Utilice las opciones 1, 2, y 3 en el menu para cargarlos y Analizar; luego vuelva a intentar esta operacion.')
+    global plantillahtmlpath, pathrelativograficas, nombrearchivografica, extensionarchivografica, archivodatoscargado, archivoinstruccionescargado, analisisrealizado
+    if not archivodatoscargado or not archivoinstruccionescargado or not analisisrealizado:
+       utils.manejador_errores(mensaje='Debe cargar tanto el archivo de datos como el de instrucciones y analizar la informacion antes de generar el Reporte. Utilice las opciones 1, 2, y 3 en el menu para cargarlos y Analizar; luego vuelva a intentar esta operacion.')
     else:
         htmlapertura = "<tr><td>"
         htmlcolumna = "</td><td align='right'>"
@@ -207,12 +208,12 @@ def Reporte():
         datos = utils.combina_ordena_datos(productos, ventas)
         totalventas = float(sum(ventas))
         #totalventas = "%.2f" % totalventas
-        totalventas = utils.format_float(totalventas)
+        totalventas = utils.format_money(totalventas)
         productomasvendido = datos[0]
         productomenosvendido = datos[-1]
         ventaproducto = 0
         for producto in datos:
-            ventaproducto = utils.format_float(producto[1])
+            ventaproducto = utils.format_money(producto[1])
             htmltablaproductos = htmltablaproductos + htmlapertura + producto[0] + htmlcolumna + str(ventaproducto) + htmlcierre
 
         archivoplantilla = open(plantillahtmlpath)
@@ -243,6 +244,30 @@ def Reporte():
                 return False
 
         #webbrowser.open(archivohtmlreporte) 
+
+        ResetGlobales
+
+def ResetGlobales():
+    global archivodatoscargado, archivoinstruccionescargado, analisisrealizado
+    global mes, anio
+    global productos, ventas
+    global nombrearchivografica, tipografica, titulografica, titulox, tituloy
+    global productomasvendido, productomenosvendido
+    archivodatoscargado = False
+    archivoinstruccionescargado =  False
+    analisisrealizado = False
+    mes = None
+    anio = None
+    productos = []
+    ventas = []
+    nombrearchivografica = ''
+    tipografica = ''
+    titulografica=''
+    titulox=''
+    tituloy=''
+    productomasvendido = ''
+    productomenosvendido = ''
+
 
 menu = ConsoleMenu("Generador de Reportes de Ventas", exit_option_text="Salir")
 
