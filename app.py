@@ -55,38 +55,42 @@ def AbrirArchivoData():
         return
     else:
         tf = open(archivodatos, 'r')
-        contenido = tf.readlines()
-        for linea in contenido:
+        contenido = tf.read()
+        datos=[]
+        if ((simbolos['dos_puntos'] in contenido) and (simbolos['igual'] in contenido) and (simbolos['parentesis_abierto']) in contenido):
+            mesanio = contenido.split('(')[0]
+            datos = contenido.split('(')[1]
+            linea = mesanio.split()
+            if (linea[0].upper() in meses):
+                mes = linea[0].upper()
+            else:
+                utils.manejador_errores(mensaje='Mes inválido en el archivo de datos. Corríjalo y vuelva a cargar el archivo.')
+                archivodatoscargado = False
+                return
+            if (linea[2].isdigit()):                
+                anio = linea[2]
+            else:
+                utils.manejador_errores(mensaje='Año inválido en el archivo de datos. Corríjalo y vuelva a cargar el archivo.')
+                archivodatoscargado = False
+                return
+            if mes is None or anio is None:
+                utils.manejador_errores(mensaje='El Mes o el Año es(son) inválido(s) en el archivo de datos. Corríjalo(s) y vuelva a cargar el archivo.')
+                archivodatoscargado = False
+                return
+                    
+            if mes is None and anio is None:
+                utils.manejador_errores(mensaje='Ambos Mes y Año son inválidos en el archivo de datos. Corríjalos y vuelva a cargar el archivo.')
+                archivodatoscargado = False
+                return
+            if mes is not None and anio is not None:
+                titulografica = f'Reporte de Ventas {mes}-{anio} '
+
+        lineas = datos.split(simbolos['punto_coma'])
+        for linea in lineas:
             precio = 0
             cantidad = 0
-            monto_ventas = 0
-            if ((simbolos['dos_puntos'] in linea) and (simbolos['igual']) and (simbolos['parentesis_abierto'])):
-                linea = linea.split()
-                if (linea[0].upper() in meses):
-                    mes = linea[0].upper()
-                else:
-                    utils.manejador_errores(mensaje='Mes inválido en el archivo de datos. Corríjalo y vuelva a cargar el archivo.')
-                    archivodatoscargado = False
-                    return
-                if (linea[2].isdigit()):                
-                    anio = linea[2]
-                else:
-                    utils.manejador_errores(mensaje='Año inválido en el archivo de datos. Corríjalo y vuelva a cargar el archivo.')
-                    archivodatoscargado = False
-                    return
-                if mes is None or anio is None:
-                    utils.manejador_errores(mensaje='El Mes o el Año es(son) inválido(s) en el archivo de datos. Corríjalo(s) y vuelva a cargar el archivo.')
-                    archivodatoscargado = False
-                    return
-                    
-                if mes is None and anio is None:
-                    utils.manejador_errores(mensaje='Ambos Mes y Año son inválidos en el archivo de datos. Corríjalos y vuelva a cargar el archivo.')
-                    archivodatoscargado = False
-                    return
-                if mes is not None and anio is not None:
-                    titulografica = f'Reporte de Ventas {mes}-{anio} '
-            
-            if ((simbolos['corchete_abierto'] in linea) and (simbolos['punto_coma'] in linea) and (simbolos['corchete_cerrado'] in linea)):
+            monto_ventas = 0            
+            if ((simbolos['corchete_abierto'] in linea)  and (simbolos['corchete_cerrado'] in linea)):
                 linea = linea.replace(simbolos['comilla'],'')
                 linea = linea.replace(simbolos['corchete_abierto'],'')
                 linea = linea.replace(simbolos['corchete_cerrado'],'')
@@ -135,8 +139,9 @@ def AbrirArchivoInstrucciones():
                 return
         else:
             tf = open(archivoinstrucciones, 'r')
-            contenido = tf.readlines()
-            for linea in contenido:
+            contenido = tf.read()
+            lineas = contenido.split(',')
+            for linea in lineas:
                 if (simbolos['apertura_instrucciones'] in linea):
                     apertura = True
                 if (instrucciones['nombre'] in linea):
