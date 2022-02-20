@@ -128,7 +128,7 @@ def AbrirArchivoInstrucciones():
     if not archivodatoscargado:
         utils.manejador_errores(mensaje='El archivo de datos aún no ha sido cargado. Utilice la opción 1 en el menú para cargarlo y luego vuelva a intentar esta operación.')
     else:
-        filetypes = [("Archivos de Instruccionese", "*.lfp")]
+        filetypes = [("Archivos de Instrucciones", "*.lfp")]
         archivoinstrucciones = fd.askopenfilename(filetypes=filetypes, title="Seleccione un archivo .lfp")
         if archivoinstrucciones is None or archivoinstrucciones == ():
                 archivoinstruccionescargado = False
@@ -152,12 +152,7 @@ def AbrirArchivoInstrucciones():
 
                 if (simbolos['cierre_instrucciones'] in linea):
                     cierre = True
-                
-            if not (apertura and cierre):
-                utils.manejador_errores(mensaje='Formato de archivo de instrucciones es inválido. Corríjalo y vuelva a intentar esta operación.')
-                archivoinstruccionescargado = False
-                return
-            
+                            
             if not nombrearchivografica:
                 utils.manejador_errores(mensaje='Nombre de archivo de gráfica es un parámetro obligatorio. Revise el archivo de instrucciones.')
                 archivoinstruccionescargado = False
@@ -193,6 +188,7 @@ def Analizar():
         elif tipografica == 'PIE':
             graphs.GraficaPie(productos, ventas, fullpathgraficaslocal)
         analisisrealizado = True
+        mb.showinfo('Análisis realizado con éxito. Puede proceder con el Reporte.')
 
 
 def Reporte():
@@ -243,7 +239,7 @@ def Reporte():
                 utils.manejador_errores(mensaje='No se pudo crear el reporte. Contacte a soporte técnico :-).')
                 return False
 
-        #webbrowser.open(archivohtmlreporte) 
+        webbrowser.open(archivohtmlreporte) 
 
         ResetGlobales
 
@@ -283,5 +279,6 @@ menu.append_item(function_item_cargar_instrucciones)
 menu.append_item(function_item_analizar)
 menu.append_item(function_item_reporte)
 
+menu.prologue_text = "Bienvenido al Generador de Reportes de Venta! Siga los pasos secuencialmente; de no hacerlo la aplicación le notificará con distintos mensajes el proceso a seguir. Tenga a mano su archivo de datos (.data) y su archivo de instrucciones (.lfp)."
 menu.show()
 

@@ -24,7 +24,8 @@ def GraficaBarras(productos, ventas, fullpathgraficas):
 
 def GraficaLineas(productos, ventas, fullpathgraficas):
     fig, ax = plt.subplots(figsize=(12, 5.4))
-    #ax[0,0].set_title(titulografica)
+    #TODO - The next line causes an exception
+    #ax[0,0].set_title("Titulin")
     ax.plot(productos, ventas)
 
     plt.savefig(fullpathgraficas, bbox_inches='tight')
