@@ -41,7 +41,7 @@ instrucciones = {'nombre': 'Nombre:', 'grafica' : 'Grafica:', 'titulo':'Titulo:'
 productomasvendido = ''
 productomenosvendido = ''
 fullpathreportes = f'{os.getcwd()}/{carpetareportes}/'
-nombreestudiante = 'Lino Antonio Garcia Vallejo'
+nombreestudiante = 'Lino Antonio García Vallejo'
 carnetestudiante = '9017323'
 
 
@@ -65,22 +65,22 @@ def AbrirArchivoData():
                 if (linea[0].upper() in meses):
                     mes = linea[0].upper()
                 else:
-                    utils.manejador_errores(mensaje='Mes invalido en el archivo de datos. Corrijalo y vuelva a cargar el archivo.')
+                    utils.manejador_errores(mensaje='Mes inválido en el archivo de datos. Corríjalo y vuelva a cargar el archivo.')
                     archivodatoscargado = False
                     return
                 if (linea[2].isdigit()):                
                     anio = linea[2]
                 else:
-                    utils.manejador_errores(mensaje='Anio invalido en el archivo de datos. Corrijalo y vuelva a cargar el archivo.')
+                    utils.manejador_errores(mensaje='Año inválido en el archivo de datos. Corríjalo y vuelva a cargar el archivo.')
                     archivodatoscargado = False
                     return
                 if mes is None or anio is None:
-                    utils.manejador_errores(mensaje='El Mes o el Anio es(son) invalido(s) en el archivo de datos. Corrijalo(s) y vuelva a cargar el archivo.')
+                    utils.manejador_errores(mensaje='El Mes o el Año es(son) inválido(s) en el archivo de datos. Corríjalo(s) y vuelva a cargar el archivo.')
                     archivodatoscargado = False
                     return
                     
                 if mes is None and anio is None:
-                    utils.manejador_errores(mensaje='Ambos Mes y Anio son invalidos en el archivo de datos. Corrijalos y vuelva a cargar el archivo.')
+                    utils.manejador_errores(mensaje='Ambos Mes y Año son inválidos en el archivo de datos. Corríjalos y vuelva a cargar el archivo.')
                     archivodatoscargado = False
                     return
                 if mes is not None and anio is not None:
@@ -103,14 +103,14 @@ def AbrirArchivoData():
                     if utils.is_float(linea[1].strip()):
                         precio = float(linea[1].strip())
                     else:
-                        utils.manejador_errores(mensaje='Precio invalido. Revise el archivo de datos.')
+                        utils.manejador_errores(mensaje='Precio inválido. Revise el archivo de datos.')
                 if linea[2].strip() == '' or linea[2] is None:
                     cantidad = 0
                 else:
                     if utils.is_positive_integer(linea[2].strip()):
                         cantidad = int(linea[2].strip())
                     else:
-                        utils.manejador_errores(mensaje='Cantidad de unidades vendidas invalida. Revise el archivo de datos.')
+                        utils.manejador_errores(mensaje='Cantidad de unidades vendidas inválida. Revise el archivo de datos.')
 
                 monto_ventas = precio * float(cantidad)
                 
@@ -126,7 +126,7 @@ def AbrirArchivoInstrucciones():
     cierre = False
     tiposgrafica = ['BARRAS','LINEAS','PIE']
     if not archivodatoscargado:
-        utils.manejador_errores(mensaje='El archivo de datos aun no ha sido cargado. Utilice la opcion 1 en el menu para cargarlo y luego vuelva a intentar esta operacion.')
+        utils.manejador_errores(mensaje='El archivo de datos aún no ha sido cargado. Utilice la opción 1 en el menú para cargarlo y luego vuelva a intentar esta operación.')
     else:
         filetypes = [("Archivos de Instruccionese", "*.lfp")]
         archivoinstrucciones = fd.askopenfilename(filetypes=filetypes, title="Seleccione un archivo .lfp")
@@ -154,21 +154,21 @@ def AbrirArchivoInstrucciones():
                     cierre = True
                 
             if not (apertura and cierre):
-                utils.manejador_errores(mensaje='Formato de archivo de instrucciones es invalido. Corrijalo y vuelva a intentar esta operacion.')
+                utils.manejador_errores(mensaje='Formato de archivo de instrucciones es inválido. Corríjalo y vuelva a intentar esta operación.')
                 archivoinstruccionescargado = False
                 return
             
             if not nombrearchivografica:
-                utils.manejador_errores(mensaje='Nombre de archivo de grafica es un parametro obligatorio. Revise el archivo de instrucciones.')
+                utils.manejador_errores(mensaje='Nombre de archivo de gráfica es un parámetro obligatorio. Revise el archivo de instrucciones.')
                 archivoinstruccionescargado = False
                 return
 
             if not tipografica:
-                utils.manejador_errores(mensaje='Tipo de grafica es un parametro obligatorio. Revise el archivo de instrucciones.')
+                utils.manejador_errores(mensaje='Tipo de gráfica es un parámetro obligatorio. Revise el archivo de instrucciones.')
                 archivoinstruccionescargado = False
                 return
             elif (tipografica not in tiposgrafica):
-                utils.manejador_errores(mensaje='Tipo de grafica es invalido. Revise el archivo de instrucciones.')
+                utils.manejador_errores(mensaje='Tipo de gráfica es inválido. Revise el archivo de instrucciones.')
                 archivoinstruccionescargado = False
                 return
 
@@ -182,7 +182,7 @@ def AbrirArchivoInstrucciones():
 def Analizar():
     global fullpathgraficas, analisisrealizado, nombrearchivografica, extensionarchivografica
     if not archivodatoscargado or not archivoinstruccionescargado:
-        utils.manejador_errores(mensaje='Debe cargar tanto el archivo de datos como el de instrucciones antes de Analizar. Utilice las opciones 1 y 2 en el menu para cargarlos y luego vuelva a intentar esta operacion.')
+        utils.manejador_errores(mensaje='Debe cargar tanto el archivo de datos como el de instrucciones antes de Analizar. Utilice las opciones 1 y 2 en el menú para cargarlos y luego vuelva a intentar esta operación.')
     else:
         fullpathgraficaslocal = ''
         fullpathgraficaslocal = fullpathgraficas + nombrearchivografica + extensionarchivografica
@@ -198,7 +198,7 @@ def Analizar():
 def Reporte():
     global plantillahtmlpath, pathrelativograficas, nombrearchivografica, extensionarchivografica, archivodatoscargado, archivoinstruccionescargado, analisisrealizado
     if not archivodatoscargado or not archivoinstruccionescargado or not analisisrealizado:
-       utils.manejador_errores(mensaje='Debe cargar tanto el archivo de datos como el de instrucciones y analizar la informacion antes de generar el Reporte. Utilice las opciones 1, 2, y 3 en el menu para cargarlos y Analizar; luego vuelva a intentar esta operacion.')
+       utils.manejador_errores(mensaje='Debe cargar tanto el archivo de datos como el de instrucciones y analizar la información antes de generar el Reporte. Utilice las opciones 1, 2, y 3 en el menú para cargarlos y Analizar; luego vuelva a intentar esta operación.')
     else:
         htmlapertura = "<tr><td>"
         htmlcolumna = "</td><td align='right'>"
@@ -240,7 +240,7 @@ def Reporte():
             try:
                 rep.write(html)
             except:
-                utils.manejador_errores(mensaje='No se pudo crear el reporte. Contacte a soporte tecnico ;-).')
+                utils.manejador_errores(mensaje='No se pudo crear el reporte. Contacte a soporte técnico :-).')
                 return False
 
         #webbrowser.open(archivohtmlreporte) 
